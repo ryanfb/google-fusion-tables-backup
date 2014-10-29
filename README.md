@@ -10,11 +10,11 @@ Copy `.secrets.yml.example` to `.secrets.yml` and put in the credentials for the
 
 By default, the script will download all Fusion Tables associated with an account, taking an optional backup directory path (defaults to `backups`):
 
-    bundle exec ./google-fusion-tables-backup [backup_directory_path]
+    bundle exec ./google-fusion-tables-backup.rb [backup_directory_path]
 
 You can also pass the script the table ID of a specific Fusion Table you'd like to back up:
 
-    bundle exec ./google-fusion-tables-backup backup_directory_path table_id
+    bundle exec ./google-fusion-tables-backup.rb backup_directory_path table_id
 
 I would suggest putting this in a cron job, and optionally putting your backup directory under version control.
 
