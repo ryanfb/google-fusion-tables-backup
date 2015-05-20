@@ -2,6 +2,7 @@
 
 require 'rubygems'
 require 'fusion_tables'
+require 'fileutils'
 require 'yaml'
 require 'csv'
 
@@ -9,6 +10,7 @@ MAX_RETRIES = 5
 
 def dump_table(fusion_table, backup_directory)
   backup_directory ||= "backups"
+  FileUtils.mkdir_p backup_directory
   filename = File.join(backup_directory ,"#{fusion_table.name}-#{fusion_table.id}.csv")
   $stderr.puts filename
   retries = 0
