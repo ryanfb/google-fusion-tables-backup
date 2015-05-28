@@ -1,1 +1,3 @@
 .secrets.yml
+client_secrets.json
+.google-*
