@@ -18,7 +18,6 @@ CREDENTIAL_STORE_FILE = ".google-oauth2.json"
 def dump_table(client, fusion_tables, fusion_table_id, backup_directory)
   backup_directory ||= "backups"
   FileUtils.mkdir_p backup_directory
-  puts "dump_table_2(#{fusion_table_id},#{backup_directory})"
 
   fusion_table = client.execute(
     :api_method => fusion_tables.table.get,
