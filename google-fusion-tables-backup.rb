@@ -99,7 +99,17 @@ end
 if ARGV[1].nil?
   # back up all tables
   result = client.execute(:api_method => fusion_tables.table.list)
-  result.data.to_hash['items'].map {|ft| dump_table(client, fusion_tables, ft['tableId'], ARGV[0])}
+  fusion_tables_list = result.data.to_hash
+  fusion_tables_list['items'].map {|ft| dump_table(client, fusion_tables, ft['tableId'], ARGV[0])}
+  while (fusion_tables_list['nextPageToken']) do
+    $stderr.puts "Using page token #{fusion_tables_list['nextPageToken']} to fetch next page of tables"
+    result = client.execute(
+      :api_method => fusion_tables.table.list,
+      :parameters => {'pageToken' => fusion_tables_list['nextPageToken']}
+    )
+    fusion_tables_list = result.data.to_hash
+    fusion_tables_list['items'].map {|ft| dump_table(client, fusion_tables, ft['tableId'], ARGV[0])}
+  end
 else
   # back up a specific table
   dump_table(client, fusion_tables, ARGV[1], ARGV[0])
