@@ -38,7 +38,17 @@ def dump_table(client, fusion_tables, fusion_table_id, backup_directory)
   fusion_table_data = result.data.to_hash
 
   if fusion_table_data['error']
-    $stderr.puts "Error :("
+    if fusion_table_data['error']['errors'][0]['reason'] == 'responseSizeTooLarge'
+      # use Fusion Tables V2 media downloads API
+      result = client.execute(
+        :api_method => fusion_tables.query.sql_get,
+        :parameters => {'sql' => "SELECT * FROM #{fusion_table_id}", 'alt' => 'media'}
+      )
+      File.open("#{filename}.csv", 'w') { |file| file.write(result.response.body) }
+    else
+      $stderr.puts "Unhandled Error:"
+      $stderr.puts fusion_table_data.inspect
+    end
   else
     CSV.open("#{filename}.csv", 'w') do |csv|
       if fusion_table_data['rows'] && (fusion_table_data['rows'].length > 0)
