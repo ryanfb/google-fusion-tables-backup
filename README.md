@@ -1,12 +1,12 @@
 google-fusion-tables-backup
 ===========================
 
-Ruby script for backing up your Google Fusion Tables data to CSV.
+Ruby script for backing up your Google Fusion Tables data to CSV, with JSON metadata.
 
 Usage:
 ------
 
-Copy `.secrets.yml.example` to `.secrets.yml` and put in the credentials for the Google account and API key you wish to use. You can obtain an API key using [the Google API console](https://code.google.com/apis/console/): create a project, enable the Fusion Tables API for it, then generate a public API access key. Additionally, if the Google account you wish to access has two-factor authentication enabled, use [an app-specific password](https://security.google.com/settings/security/apppasswords).
+This uses the "Installed App" flow for Google OAuth 2.0. You can obtain an API key using [the Google API console](https://code.google.com/apis/console/): create a project, enable the Fusion Tables API for it, create a new "Installed application" OAuth client ID under Credentials, download the JSON in this directory and name it `client_secrets.json`. On first run, the flow should open a browser window to perform OAuth authorization. (Unfortunately this prevents 100% headless setup, but you can copy the resulting .google-oauth2.json credential file elsewhere.)
 
 By default, the script will download all Fusion Tables associated with an account, taking an optional backup directory path (defaults to `backups`):
 
