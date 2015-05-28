@@ -1,7 +1,7 @@
 google-fusion-tables-backup
 ===========================
 
-Ruby script for backing up your Google Fusion Tables data to CSV.
+Ruby script for backing up your Google Fusion Tables data to CSV, with JSON metadata.
 
 Usage:
 ------

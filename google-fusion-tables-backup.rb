@@ -2,7 +2,7 @@
 
 require 'rubygems'
 require 'fileutils'
-require 'yaml'
+require 'json'
 require 'csv'
 
 require 'google/api_client'
@@ -14,37 +14,43 @@ API_VERSION = 'v2'
 CACHED_API_FILE = ".google-fusiontables-#{API_VERSION}.cache"
 CREDENTIAL_STORE_FILE = ".google-oauth2.json"
 
-MAX_RETRIES = 5
-
-def dump_table(fusion_table, backup_directory)
+# takes a Fusion Table encrypted id and optional backup directory and dumps to CSV
+def dump_table(client, fusion_tables, fusion_table_id, backup_directory)
   backup_directory ||= "backups"
   FileUtils.mkdir_p backup_directory
-  filename = File.join(backup_directory ,"#{fusion_table.name}-#{fusion_table.id}.csv")
+  puts "dump_table_2(#{fusion_table_id},#{backup_directory})"
+
+  fusion_table = client.execute(
+    :api_method => fusion_tables.table.get,
+    :parameters => {'tableId' => "#{fusion_table_id}"}
+  )
+  fusion_table.data.to_hash
+  filename = File.join(backup_directory ,"#{fusion_table.data.to_hash['name']}-#{fusion_table_id}")
   $stderr.puts filename
-  retries = 0
 
-  begin
-    fusion_table_data = fusion_table.select
+  File.open("#{filename}.json","w") do |f|
+    f.write(JSON.pretty_generate(fusion_table.data.to_hash))
+  end
 
-    CSV.open(filename, 'w') do |csv|
-      if fusion_table_data.length > 0
-        csv << fusion_table_data.first.keys
-        fusion_table_data.each do |data|
-          csv << data.values
+  result = client.execute(
+    :api_method => fusion_tables.query.sql_get,
+    :parameters => {'sql' => "SELECT * FROM #{fusion_table_id}"}
+  )
+  fusion_table_data = result.data.to_hash
+
+  if fusion_table_data['error']
+    $stderr.puts "Error :("
+  else
+    CSV.open("#{filename}.csv", 'w') do |csv|
+      if fusion_table_data['rows'] && (fusion_table_data['rows'].length > 0)
+        csv << fusion_table_data['columns']
+        fusion_table_data['rows'].each do |row|
+          csv << row
         end
       end
     end
-  rescue Exception => e
-    $stderr.puts e.inspect
-    if retries < MAX_RETRIES
-      retries += 1
-      $stderr.puts "Retry #{retries}"
-      retry
-    end
   end
 end
-
-# config = YAML.load_file('.secrets.yml')
 
 client = Google::APIClient.new(:application_name => 'google-fusion-tables-backup',:application_version => '0.1.0')
 # FileStorage stores auth credentials in a file, so they survive multiple runs
@@ -81,16 +87,11 @@ else
   end
 end
 
-# fusion_tables = GData::Client::FusionTables.new
-# fusion_tables.clientlogin(config["email"], config["pass"])
-# fusion_tables.set_api_key(config["api_key"])
-
 if ARGV[1].nil?
   # back up all tables
-  # fusion_tables.show_tables.map {|ft| dump_table(ft, ARGV[0])}
   result = client.execute(:api_method => fusion_tables.table.list)
-  jj result.data.to_hash
+  result.data.to_hash['items'].map {|ft| dump_table(client, fusion_tables, ft['tableId'], ARGV[0])}
 else
   # back up a specific table
-  # fusion_tables.show_tables.select {|ft| ft.id == ARGV[1]}.map {|ft| dump_table(ft, ARGV[0])}
+  dump_table(client, fusion_tables, ARGV[1], ARGV[0])
 end
