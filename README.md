@@ -6,7 +6,7 @@ Ruby script for backing up your Google Fusion Tables data to CSV, with JSON meta
 Usage:
 ------
 
-This uses the "Installed App" flow for Google OAuth 2.0. You can obtain an API key using [the Google API console](https://code.google.com/apis/console/): create a project, enable the Fusion Tables API for it, create a new "Installed application" OAuth client ID under Credentials, download the JSON into this script's directory and name it `client_secrets.json`. On first run, the flow should open a browser window to perform OAuth authorization. (Unfortunately this prevents 100% headless setup, but you can copy the resulting .google-oauth2.json credential file elsewhere.)
+This uses the "Installed App" flow for Google OAuth 2.0. You can obtain an API key using [the Google API console](https://code.google.com/apis/console/): create a project, enable the Fusion Tables API for it, create a new "Installed application" OAuth client ID under Credentials, download the JSON into this script's directory and name it `client_secrets.json`. On first run, the flow should prompt you to open a browser window to perform OAuth authorization.
 
 By default, the script will download all Fusion Tables associated with an account, taking an optional backup directory path (defaults to `backups`):
 
