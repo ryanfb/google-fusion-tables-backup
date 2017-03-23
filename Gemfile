@@ -1,2 +1,2 @@
 source 'https://rubygems.org'
-gem 'google-api-client', '~>0.9.0'
+gem 'google-api-client', '~>0.10'
