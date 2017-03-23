@@ -52,7 +52,24 @@ fusion_tables.authorization = credentials
 if ARGV[1].nil?
   # back up all tables
   fusion_tables_list = fusion_tables.list_tables
-  fusion_tables_list.items.map {|ft| dump_table(fusion_tables, ft.table_id, ARGV[0])}
+  loop do
+    fusion_tables_list.items.map do |ft|
+      begin
+        dump_table(fusion_tables, ft.table_id, ARGV[0])
+      rescue Google::Apis::ServerError => e
+        $stderr.puts "Error dumping table: #{ft.table_id}"
+        $stderr.puts e.inspect
+      end
+    end
+
+    if fusion_tables_list.next_page_token
+      $stderr.puts "Using page token #{fusion_tables_list.next_page_token} to fetch next page of tables"
+      fusion_tables_list = fusion_tables.list_tables(page_token: fusion_tables_list.next_page_token)
+    else
+      break
+    end
+  end
+
   while (fusion_tables_list.next_page_token) do
     $stderr.puts "Using page token #{fusion_tables_list.next_page_token} to fetch next page of tables"
     fusion_tables_list = fusion_tables.list_tables(page_token: fusion_tables_list.next_page_token)
